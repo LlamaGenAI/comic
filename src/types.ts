@@ -4,6 +4,8 @@ export interface LlamaGenClientOptions {
   apiKey: string;
   baseURL?: string;
   timeoutMs?: number;
+  maxRetries?: number;
+  retryDelayMs?: number;
   fetch?: FetchLike;
 }
 

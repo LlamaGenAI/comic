@@ -107,6 +107,6 @@ NPM_OTP=123456 npm run publish:minor
 
 A full-stack integration demo with API routes and tests is available in:
 
-- [`examples/nextjs-integration`](/Users/terry/code/comic/examples/nextjs-integration)
+- [`examples/nextjs-integration`](./examples/nextjs-integration)
 
 See detailed plan in [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md).
