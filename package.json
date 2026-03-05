@@ -1,6 +1,6 @@
 {
   "name": "comic",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Official LlamaGen comic SDK for JavaScript and TypeScript",
   "license": "MIT",
   "author": "llamagne.ai",
