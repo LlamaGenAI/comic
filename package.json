@@ -42,7 +42,8 @@
     "preflight": "npm run lint && npm test && npm run build",
     "release:patch": "node scripts/release.mjs patch",
     "release:minor": "node scripts/release.mjs minor",
-    "release:major": "node scripts/release.mjs major"
+    "release:major": "node scripts/release.mjs major",
+    "publish:minor": "node scripts/publish-minor.mjs"
   },
   "engines": {
     "node": ">=18"

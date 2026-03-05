@@ -95,6 +95,14 @@ npm run release:minor
 npm run release:major
 ```
 
+Direct publish with auto `minor` bump:
+
+```bash
+npm run publish:minor
+# if your npm account requires OTP:
+NPM_OTP=123456 npm run publish:minor
+```
+
 ## Next.js Demo
 
 A full-stack integration demo with API routes and tests is available in:

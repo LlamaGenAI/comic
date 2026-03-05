@@ -24,6 +24,20 @@ If using granular token with bypass 2FA for writes:
 npm publish --access public
 ```
 
+## One-command minor publish
+
+Auto preflight + bump minor + publish + push tags:
+
+```bash
+npm run publish:minor
+```
+
+With OTP:
+
+```bash
+NPM_OTP=123456 npm run publish:minor
+```
+
 ## Publish to GitHub
 
 ```bash
