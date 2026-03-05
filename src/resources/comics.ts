@@ -10,7 +10,7 @@ import { LlamaGenTimeoutError } from '../errors';
 import { HTTPClient } from '../http';
 
 const DEFAULT_SIZE = '1024x1024';
-const DEFAULT_PRESET = 'render';
+const DEFAULT_PRESET = 'neutral';
 const DEFAULT_DONE_STATUSES = ['SUCCEEDED', 'FAILED', 'PROCESSED', 'COMPLETED'];
 
 export class ComicsResource {

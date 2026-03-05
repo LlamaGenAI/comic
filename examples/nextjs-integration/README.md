@@ -22,8 +22,8 @@ import { LlamaGenClient } from 'comic';
 const llamagen = new LlamaGenClient({ apiKey: process.env.LLAMAGEN_API_KEY! });
 
 const created = await llamagen.comic.create({
-  prompt: 'A fox detective in Tokyo',
-  preset: 'render',
+  prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors,A fox detective in New York City',
+  preset: 'neutral',
   size: '1024x1024'
 });
 
@@ -46,5 +46,5 @@ If you do not want to use SDK, call the same endpoints directly:
 curl -X POST https://api.llamagen.ai/v1/comics/generations \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"prompt":"A fox detective in Tokyo","preset":"render","size":"1024x1024"}'
+  -d '{"prompt":"A fox detective in Tokyo","preset":"neutral","size":"1024x1024"}'
 ```

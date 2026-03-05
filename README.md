@@ -99,7 +99,7 @@ Common types:
 ```ts
 const created = await llamagen.comic.create({
   prompt: 'A superhero cat saving a city from giant mice',
-  preset: 'render',
+  preset: 'neutral',
   size: '1024x1024'
 });
 
@@ -145,7 +145,7 @@ Request body:
 ```json
 {
   "prompt": "A superhero cat saving a city from giant mice",
-  "preset": "render",
+  "preset": "neutral",
   "size": "1024x1024",
   "model": "optional-model-id"
 }
@@ -159,7 +159,7 @@ curl -X POST "https://api.llamagen.ai/v1/comics/generations" \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "A superhero cat saving a city from giant mice",
-    "preset": "render",
+    "preset": "neutral",
     "size": "1024x1024"
   }'
 ```
@@ -217,7 +217,7 @@ const response = await fetch('https://api.llamagen.ai/v1/comics/generations', {
   },
   body: JSON.stringify({
     prompt: 'A superhero cat saving a city from giant mice',
-    preset: 'render',
+    preset: 'neutral',
     size: '1024x1024'
   })
 });

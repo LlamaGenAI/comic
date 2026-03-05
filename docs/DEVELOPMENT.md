@@ -14,7 +14,7 @@ const llamagen = new LlamaGenClient({ apiKey: 'YOUR_API_KEY' });
 - Root namespace starts with `llamagen.*` and all demo SDK capabilities are covered.
 - API spec aligned with comic docs page:
   - Base URL: `https://api.llamagen.ai/v1`
-  - Create params include `prompt`, optional `preset` (default `render`), optional `size`, optional `model`
+  - Create params include `prompt`, optional `preset` (default `neutral`), optional `size`, optional `model`
   - Generation statuses include `PENDING`, `PROCESSING`, `SUCCEEDED`, `FAILED`
 
 ## Covered Capabilities

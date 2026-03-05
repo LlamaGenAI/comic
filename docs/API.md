@@ -26,8 +26,8 @@ Creates a comic generation task.
 
 ```ts
 const created = await llamagen.comic.create({
-  prompt: 'An epic battle in a cyberpunk city',
-  preset: 'render',
+  prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, An epic battle in a cyberpunk city',
+  preset: 'neutral',
   size: '1024x1024'
 });
 ```
@@ -124,7 +124,7 @@ const createdRes = await fetch('https://api.llamagen.ai/v1/comics/generations', 
   },
   body: JSON.stringify({
     prompt: 'A fox detective in Tokyo',
-    preset: 'render',
+    preset: 'neutral',
     size: '1024x1024'
   })
 });
@@ -148,7 +148,7 @@ const detail = await detailRes.json();
 `POST /comics/generations` request body:
 
 - `prompt: string` required
-- `preset?: string` optional (default `render`)
+- `preset?: string` optional (default `neutral`)
 - `size?: string` optional (example `1024x1024`)
 - `model?: string` optional
 
@@ -183,7 +183,7 @@ curl -X POST https://api.llamagen.ai/v1/comics/generations \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "A fox detective in Tokyo",
-    "preset": "render",
+    "preset": "neutral",
     "size": "1024x1024"
   }'
 ```

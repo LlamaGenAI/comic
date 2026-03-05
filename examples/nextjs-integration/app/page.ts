@@ -5,8 +5,8 @@ import { createDefaultComicSDKService } from '../lib/comic-sdk';
 export async function getDemoComicGeneration() {
   const comic = createDefaultComicSDKService();
   return comic.createGeneration({
-    prompt: 'A short four-panel comic about a robot learning to cook.',
-    preset: 'render',
+    prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A short four-panel comic about a robot learning to cook.',
+    preset: 'neutral',
     size: '1024x1024'
   });
 }
@@ -14,8 +14,8 @@ export async function getDemoComicGeneration() {
 export async function getDemoComicGenerationWithPolling() {
   const comic = createDefaultComicSDKService();
   return comic.createAndWait({
-    prompt: 'A short four-panel comic about a robot learning to cook.',
-    preset: 'render',
+    prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A short four-panel comic about a robot learning to cook.',
+    preset: 'neutral',
     size: '1024x1024'
   });
 }

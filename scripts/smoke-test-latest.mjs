@@ -40,7 +40,7 @@ const llamagen = new LlamaGenClient({ apiKey });
 console.log('[smoke] creating comic generation...');
 const created = await llamagen.comic.create({
   prompt,
-  preset: 'render',
+  preset: 'neutral',
   size: '1024x1024'
 });
 

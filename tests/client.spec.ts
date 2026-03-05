@@ -53,7 +53,7 @@ describe('LlamaGenClient', () => {
     const parsed = JSON.parse(String(init?.body));
     expect(parsed).toMatchObject({
       prompt: 'a cat and a dog',
-      preset: 'render',
+      preset: 'neutral',
       size: '1024x1024'
     });
   });
