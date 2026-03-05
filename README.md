@@ -45,6 +45,17 @@ console.log(artwork.status);
 
 Base URL: `https://api.llamagen.ai/v1`
 
+### Create Generation API
+
+Endpoint: `POST /comics/generations`
+
+Request body fields:
+
+- `prompt: string` (required) - comic story/script prompt
+- `preset?: string` (optional, default `render`)
+- `size?: string` (optional, e.g. `1024x1024`)
+- `model?: string` (optional)
+
 Create generation with `curl`:
 
 ```bash
@@ -58,11 +69,53 @@ curl -X POST https://api.llamagen.ai/v1/comics/generations \
   }'
 ```
 
+Success response example:
+
+```json
+{
+  "id": "gen_123456789",
+  "status": "PENDING",
+  "createdAt": "2026-03-05T00:00:00Z"
+}
+```
+
 Get generation result with `curl`:
 
 ```bash
 curl -X GET https://api.llamagen.ai/v1/comics/generations/YOUR_GENERATION_ID \
   -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Get Generation API
+
+Endpoint: `GET /comics/generations/:id`
+
+Response fields:
+
+- `id: string` generation id
+- `status: string` (`PENDING`, `PROCESSING`, `SUCCEEDED`, `FAILED`, etc.)
+- `output?: string` output URL when available
+- `createdAt?: string`
+- `comics?: object[]` panel-level output payload
+
+Success response example:
+
+```json
+{
+  "id": "gen_123456789",
+  "status": "SUCCEEDED",
+  "output": "https://cdn.llamagen.ai/comics/gen_123456789.webp",
+  "createdAt": "2026-03-05T00:00:00Z"
+}
+```
+
+Error response example:
+
+```json
+{
+  "error": "Unauthorized",
+  "message": "Invalid API token"
+}
 ```
 
 Create generation with native `fetch`:
@@ -83,6 +136,10 @@ const response = await fetch('https://api.llamagen.ai/v1/comics/generations', {
 
 const created = await response.json();
 ```
+
+TypeScript API shapes are maintained in:
+
+- [`src/api-types.ts`](./src/api-types.ts)
 
 ## API
 

@@ -2,6 +2,10 @@
 
 Base URL: `https://api.llamagen.ai/v1`
 
+Type definitions for payloads and responses live in:
+
+- [`../src/api-types.ts`](../src/api-types.ts)
+
 ## Client
 
 ```ts
@@ -99,6 +103,36 @@ const detailRes = await fetch(
 );
 
 const detail = await detailRes.json();
+```
+
+### HTTP Request / Response Notes
+
+`POST /comics/generations` request body:
+
+- `prompt: string` required
+- `preset?: string` optional (default `render`)
+- `size?: string` optional (example `1024x1024`)
+- `model?: string` optional
+
+`POST /comics/generations` response (example):
+
+```json
+{
+  "id": "gen_123456789",
+  "status": "PENDING",
+  "createdAt": "2026-03-05T00:00:00Z"
+}
+```
+
+`GET /comics/generations/:id` response (example):
+
+```json
+{
+  "id": "gen_123456789",
+  "status": "SUCCEEDED",
+  "output": "https://cdn.llamagen.ai/comics/gen_123456789.webp",
+  "createdAt": "2026-03-05T00:00:00Z"
+}
 ```
 
 ## cURL Example

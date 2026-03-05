@@ -3,9 +3,11 @@ export { LlamaGenAPIError, LlamaGenTimeoutError } from './errors';
 
 export type {
   LlamaGenClientOptions,
+  ComicGenerationStatus,
   CreateComicParams,
   ComicArtworkResponse,
   WaitForCompletionOptions,
   ComicEntity,
-  ComicPanel
+  ComicPanel,
+  ErrorResponseBody
 } from './types';
