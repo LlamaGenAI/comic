@@ -4,5 +4,7 @@ coverage
 *.log
 .DS_Store
 .env
+.env.local
 .npm-cache
 *.tgz
+.local-smoke/

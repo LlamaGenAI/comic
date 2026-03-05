@@ -44,7 +44,8 @@
     "release:patch": "node scripts/release.mjs patch",
     "release:minor": "node scripts/release.mjs minor",
     "release:major": "node scripts/release.mjs major",
-    "publish:minor": "node scripts/publish-minor.mjs"
+    "publish:minor": "node scripts/publish-minor.mjs",
+    "smoke:latest": "node scripts/smoke-test-latest.mjs"
   },
   "engines": {
     "node": ">=18"

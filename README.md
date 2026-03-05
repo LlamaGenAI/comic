@@ -4,7 +4,16 @@
 [![npm version](https://img.shields.io/npm/v/comic.svg)](https://www.npmjs.com/package/comic)
 [![npm downloads](https://img.shields.io/npm/dm/comic.svg)](https://www.npmjs.com/package/comic)
 
-Official JavaScript/TypeScript SDK for LlamaGen comic APIs.
+Official JavaScript/TypeScript SDK for the LlamaGen Comic API.
+
+Homepage: [http://llamagen.ai/comic-api](http://llamagen.ai/comic-api)
+
+## Why `comic`
+
+- Clean SDK for creators, agents, and product teams
+- Typed request/response models for TypeScript
+- Built-in polling, retries, batch concurrency, and timeout controls
+- Works with SDK, HTTP, and cURL workflows
 
 ## Install
 
@@ -12,19 +21,17 @@ Official JavaScript/TypeScript SDK for LlamaGen comic APIs.
 npm install comic
 ```
 
-## How To Get `YOUR_API_KEY`
+## Get `YOUR_API_KEY`
 
-1. Open [LlamaGen Comic API Dashboard](http://llamagen.ai/comic-api).
-2. Sign in and create/view an API token in the dashboard.
-3. Use that token as `YOUR_API_KEY` in this SDK.
-
-Authentication uses Bearer token:
+1. Open [LlamaGen Comic API Dashboard](http://llamagen.ai/comic-api)
+2. Sign in and create an API key
+3. Use the key in SDK or HTTP Authorization header
 
 ```http
 Authorization: Bearer YOUR_API_KEY
 ```
 
-## Quick Start
+## Quick Start (SDK)
 
 ```ts
 import { LlamaGenClient } from 'comic';
@@ -37,53 +44,117 @@ const created = await llamagen.comic.create({
   prompt: 'A sci-fi story about two friends on Mars'
 });
 
-const artwork = await llamagen.comic.waitForCompletion(created.id);
-console.log(artwork.status);
+const result = await llamagen.comic.waitForCompletion(created.id);
+console.log(result.status, result.output);
 ```
 
-## AI Agent / Creator Workflows
+## API Surface
 
-Batch create multiple generations with concurrency control:
+### Client
+
+- `new LlamaGenClient(options)`
+- `options.apiKey: string` (required)
+- `options.baseURL?: string` (default `https://api.llamagen.ai/v1`)
+- `options.timeoutMs?: number` (default `30000`)
+- `options.maxRetries?: number` (default `2`)
+- `options.retryDelayMs?: number` (default `500`)
+- `options.fetch?: typeof fetch`
+
+### Namespace
+
+All capabilities start from `llamagen.comic`:
+
+- `llamagen.comic.create(params)`
+- `llamagen.comic.get(id)`
+- `llamagen.comic.waitForCompletion(id, options?)`
+- `llamagen.comic.createAndWait(params, options?)`
+- `llamagen.comic.createBatch(paramsList, options?)`
+- `llamagen.comic.waitForMany(ids, options?)`
+
+Backward compatibility aliases:
+
+- `llamagen.comic.createComic(...)`
+- `llamagen.comic.getComic(...)`
+
+## TypeScript Types
+
+Request/response types are maintained in:
+
+- [`src/api-types.ts`](./src/api-types.ts)
+- [`src/types.ts`](./src/types.ts)
+
+Common types:
+
+- `CreateComicParams`
+- `ComicGenerationResponse`
+- `ComicDetailResponse`
+- `WaitForCompletionOptions`
+- `BatchCreateOptions`
+- `WaitForManyOptions`
+
+## SDK Examples
+
+### Create + Poll
+
+```ts
+const created = await llamagen.comic.create({
+  prompt: 'A superhero cat saving a city from giant mice',
+  preset: 'render',
+  size: '1024x1024'
+});
+
+const done = await llamagen.comic.waitForCompletion(created.id, {
+  intervalMs: 5000,
+  timeoutMs: 180000
+});
+```
+
+### Batch Workflow for Agents
 
 ```ts
 const jobs = await llamagen.comic.createBatch(
   [
-    { prompt: "Scene 1: hero enters the city" },
-    { prompt: "Scene 2: conflict escalates" },
-    { prompt: "Scene 3: final showdown" }
+    { prompt: 'Scene 1: hero enters the city' },
+    { prompt: 'Scene 2: conflict escalates' },
+    { prompt: 'Scene 3: final showdown' }
   ],
   { concurrency: 2, stopOnError: false }
 );
+
+const ids = jobs
+  .filter((job) => job.result?.id)
+  .map((job) => job.result.id);
+
+const results = await llamagen.comic.waitForMany(ids, {
+  concurrency: 3,
+  intervalMs: 4000,
+  timeoutMs: 240000
+});
 ```
 
-Wait for many generation IDs in parallel:
-
-```ts
-const finalResults = await llamagen.comic.waitForMany(
-  jobs.filter((j) => j.result?.id).map((j) => j.result!.id),
-  { concurrency: 3, intervalMs: 4000, timeoutMs: 240000 }
-);
-```
-
-## Direct HTTP / cURL (No SDK)
+## HTTP API (Direct)
 
 Base URL: `https://api.llamagen.ai/v1`
 
-### Create Generation API
+### 1) Create Generation
 
 Endpoint: `POST /comics/generations`
 
-Request body fields:
+Request body:
 
-- `prompt: string` (required) - comic story/script prompt
-- `preset?: string` (optional, default `render`)
-- `size?: string` (optional, e.g. `1024x1024`)
-- `model?: string` (optional)
+```json
+{
+  "prompt": "A superhero cat saving a city from giant mice",
+  "preset": "render",
+  "size": "1024x1024",
+  "model": "optional-model-id"
+}
+```
 
-Create generation with `curl`:
+cURL:
 
 ```bash
-curl -X POST https://api.llamagen.ai/v1/comics/generations \
+curl -X POST "https://api.llamagen.ai/v1/comics/generations" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -93,43 +164,36 @@ curl -X POST https://api.llamagen.ai/v1/comics/generations \
   }'
 ```
 
-Success response example:
+Example response:
 
 ```json
 {
   "id": "gen_123456789",
   "status": "PENDING",
-  "createdAt": "2026-03-05T00:00:00Z"
+  "createdAt": "2026-03-05T00:00:00.000Z"
 }
 ```
 
-Get generation result with `curl`:
-
-```bash
-curl -X GET https://api.llamagen.ai/v1/comics/generations/YOUR_GENERATION_ID \
-  -H "Authorization: Bearer YOUR_API_KEY"
-```
-
-### Get Generation API
+### 2) Get Generation
 
 Endpoint: `GET /comics/generations/:id`
 
-Response fields:
+cURL:
 
-- `id: string` generation id
-- `status: string` (`PENDING`, `PROCESSING`, `SUCCEEDED`, `FAILED`, etc.)
-- `output?: string` output URL when available
-- `createdAt?: string`
-- `comics?: object[]` panel-level output payload
+```bash
+curl -X GET "https://api.llamagen.ai/v1/comics/generations/YOUR_GENERATION_ID" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
 
-Success response example:
+Example response:
 
 ```json
 {
   "id": "gen_123456789",
   "status": "SUCCEEDED",
   "output": "https://cdn.llamagen.ai/comics/gen_123456789.webp",
-  "createdAt": "2026-03-05T00:00:00Z"
+  "createdAt": "2026-03-05T00:00:00.000Z",
+  "comics": []
 }
 ```
 
@@ -142,13 +206,13 @@ Error response example:
 }
 ```
 
-Create generation with native `fetch`:
+## JavaScript Fetch Example
 
 ```ts
 const response = await fetch('https://api.llamagen.ai/v1/comics/generations', {
   method: 'POST',
   headers: {
-    Authorization: `Bearer ${process.env.LLAMAGEN_API_KEY}`,
+    Authorization: 'Bearer YOUR_API_KEY',
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
@@ -158,82 +222,16 @@ const response = await fetch('https://api.llamagen.ai/v1/comics/generations', {
   })
 });
 
-const created = await response.json();
+const data = await response.json();
+console.log(data);
 ```
-
-TypeScript API shapes are maintained in:
-
-- [`src/api-types.ts`](./src/api-types.ts)
-
-## API
-
-### `new LlamaGenClient(options)`
-
-- `apiKey: string` (required)
-- `baseURL?: string` (default: `https://api.llamagen.ai/v1`)
-- `timeoutMs?: number` (default: `30000`)
-- `maxRetries?: number` (default: `2`, retries on `429` and `5xx`)
-- `retryDelayMs?: number` (default: `500`)
-- `fetch?: typeof fetch` (optional custom fetch)
-
-### `llamagen.comic.create(params)`
-
-Creates a comic generation task.
-
-- `prompt: string` (required)
-- `size?: string` (default: `1024x1024`)
-- `preset?: string` (default: `render`)
-- `model?: string` (optional, API chooses model when omitted)
-- Any extra fields are forwarded to API.
-
-### `llamagen.comic.get(artworkId)`
-
-Fetches a comic generation by ID.
-
-Input validation:
-
-- `prompt` must be a non-empty string for `create(...)`
-- `artworkId` must be a non-empty string for `get(...)`
-
-### `llamagen.comic.waitForCompletion(artworkId, options?)`
-
-Polls until generation reaches a terminal status.
-
-- `intervalMs?: number` (default `5000`)
-- `timeoutMs?: number` (default `180000`)
-- `doneStatuses?: string[]` (default `['SUCCEEDED','FAILED','PROCESSED','COMPLETED']`)
-
-### `llamagen.comic.createAndWait(params, options?)`
-
-Creates then waits for completion.
-
-### `llamagen.comic.createBatch(paramsList, options?)`
-
-Creates many generations with bounded concurrency.
-
-- `paramsList: CreateComicParams[]` (required)
-- `options.concurrency?: number` (default `3`)
-- `options.stopOnError?: boolean` (default `false`)
-
-### `llamagen.comic.waitForMany(artworkIds, options?)`
-
-Waits for many generation IDs with bounded concurrency.
-
-- `artworkIds: string[]` (required)
-- `options.concurrency?: number` (default `3`)
-- supports `intervalMs`, `timeoutMs`, `doneStatuses`
-
-### Backward-compatible aliases
-
-- `llamagen.comic.createComic(...)`
-- `llamagen.comic.getComic(...)`
 
 ## Errors
 
-- `LlamaGenAPIError` for non-2xx API responses (`status`, `data` included)
-- `LlamaGenTimeoutError` for timeout or polling timeout
+- `LlamaGenAPIError`: non-2xx API response with `status` and `data`
+- `LlamaGenTimeoutError`: request timeout or polling timeout
 
-## Development
+## Local Dev
 
 ```bash
 npm install
@@ -242,49 +240,23 @@ npm test
 npm run build
 ```
 
-For contribution workflow, see [CONTRIBUTING.md](./CONTRIBUTING.md).
-For long-term direction, see [docs/ROADMAP.md](./docs/ROADMAP.md).
-
-## Git & Release Workflow
-
-Update `origin` quickly:
+Smoke test with latest published SDK:
 
 ```bash
-npm run remote:set -- git@github.com:LlamaGenAI/comic.git
+npm run smoke:latest
 ```
 
-Semantic version release (auto lint/test/build + version bump + git tag + push):
+Outputs are written to `.local-smoke/results/<timestamp>/` and are not tracked by git.
 
-```bash
-npm run release:patch
-npm run release:minor
-npm run release:major
-```
+## 90-Day Growth Plan
 
-Direct publish with auto `minor` bump:
+- Month 1: tighten docs, examples, and onboarding friction (time-to-first-image < 5 minutes)
+- Month 2: deepen framework integrations and production patterns for AI agents
+- Month 3: scale community contributions, issue velocity, and benchmark showcases
 
-```bash
-npm run publish:minor
-# if your npm account requires OTP:
-NPM_OTP=123456 npm run publish:minor
-```
+Project references:
 
-## Next.js Demo
-
-A direct SDK integration demo for Next.js is available in:
-
-- [`examples/nextjs-integration`](./examples/nextjs-integration)
-
-## Express Demo
-
-A direct SDK integration demo for Express is available in:
-
-- [`examples/express-integration`](./examples/express-integration)
-
-## AI Agent Demo
-
-Agent orchestration example (batch create + parallel wait):
-
-- [`examples/agents-integration`](./examples/agents-integration)
-
-See detailed plan in [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md).
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [SECURITY.md](./SECURITY.md)
+- [CLAUDE.md](./CLAUDE.md)
+- [docs/ROADMAP.md](./docs/ROADMAP.md)

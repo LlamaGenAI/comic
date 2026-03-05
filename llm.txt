@@ -1,0 +1,45 @@
+project: comic
+repository: https://github.com/LlamaGenAI/comic
+package: https://www.npmjs.com/package/comic
+homepage: http://llamagen.ai/comic-api
+language: TypeScript, JavaScript
+
+summary:
+comic is the official JavaScript/TypeScript SDK for LlamaGen Comic API.
+It supports single generation, polling, batch generation, concurrency control,
+and robust error handling for AI agent and creator workflows.
+
+quickstart:
+1) npm install comic
+2) import { LlamaGenClient } from 'comic'
+3) const llamagen = new LlamaGenClient({ apiKey: 'YOUR_API_KEY' })
+4) await llamagen.comic.create({ prompt: '...' })
+5) await llamagen.comic.waitForCompletion(id)
+
+sdk_namespace:
+- llamagen.comic.create
+- llamagen.comic.get
+- llamagen.comic.waitForCompletion
+- llamagen.comic.createAndWait
+- llamagen.comic.createBatch
+- llamagen.comic.waitForMany
+
+http_api:
+base_url: https://api.llamagen.ai/v1
+create_generation: POST /comics/generations
+get_generation: GET /comics/generations/:id
+auth: Authorization: Bearer YOUR_API_KEY
+
+types:
+- src/api-types.ts
+- src/types.ts
+
+dev_commands:
+- npm run lint
+- npm test
+- npm run build
+- npm run smoke:latest
+
+notes:
+- Keep .env.local private and untracked.
+- Smoke artifacts are generated in .local-smoke/ and untracked.
