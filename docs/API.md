@@ -68,6 +68,44 @@ const done = await llamagen.comic.createAndWait({
 });
 ```
 
+## `llamagen.comic.createBatch(paramsList, options?)`
+
+Agent-friendly helper to submit many generation tasks with concurrency limits.
+
+```ts
+const batch = await llamagen.comic.createBatch(
+  [
+    { prompt: 'Panel 1: intro' },
+    { prompt: 'Panel 2: action' },
+    { prompt: 'Panel 3: ending' }
+  ],
+  { concurrency: 2, stopOnError: false }
+);
+```
+
+Result item shape:
+
+```ts
+type BatchCreateItemResult = {
+  input: CreateComicParams;
+  result?: ComicArtworkResponse;
+  error?: unknown;
+};
+```
+
+## `llamagen.comic.waitForMany(artworkIds, options?)`
+
+Waits for many IDs in parallel with bounded concurrency.
+
+```ts
+const ids = batch.flatMap((x) => (x.result?.id ? [x.result.id] : []));
+const done = await llamagen.comic.waitForMany(ids, {
+  concurrency: 3,
+  intervalMs: 4000,
+  timeoutMs: 240000
+});
+```
+
 ## Backward-compatible aliases
 
 ```ts

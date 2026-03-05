@@ -46,3 +46,18 @@ export interface ErrorResponseBody {
   message?: string;
   [key: string]: unknown;
 }
+
+export interface BatchCreateOptions {
+  concurrency?: number;
+  stopOnError?: boolean;
+}
+
+export interface BatchCreateItemResult {
+  input: CreateComicParams;
+  result?: ComicArtworkResponse;
+  error?: unknown;
+}
+
+export interface WaitManyOptions extends WaitForCompletionOptions {
+  concurrency?: number;
+}

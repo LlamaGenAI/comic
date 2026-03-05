@@ -215,4 +215,57 @@ describe('LlamaGenClient', () => {
     expect(err.status).toBe(400);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  test('createBatch returns per-item errors when stopOnError is false', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createJsonResponse({ id: 'gen_1', status: 'PENDING' }))
+      .mockResolvedValueOnce(createJsonResponse({ error: 'bad request' }, 400))
+      .mockResolvedValueOnce(createJsonResponse({ id: 'gen_3', status: 'PENDING' }));
+
+    const llamagen = new LlamaGenClient({
+      apiKey: 'test-key',
+      fetch: fetchMock
+    });
+
+    const results = await llamagen.comic.createBatch(
+      [{ prompt: 'a' }, { prompt: 'b' }, { prompt: 'c' }],
+      { concurrency: 2 }
+    );
+
+    expect(results).toHaveLength(3);
+    expect(results[0].result?.id).toBe('gen_1');
+    expect(results[1].error).toBeDefined();
+    expect(results[2].result?.id).toBe('gen_3');
+  });
+
+  test('createBatch throws when stopOnError is true', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ error: 'forbidden' }, 403));
+
+    const llamagen = new LlamaGenClient({
+      apiKey: 'test-key',
+      fetch: fetchMock
+    });
+
+    await expect(
+      llamagen.comic.createBatch([{ prompt: 'a' }], { stopOnError: true })
+    ).rejects.toBeInstanceOf(LlamaGenAPIError);
+  });
+
+  test('waitForMany waits for all ids', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createJsonResponse({ id: 'a1', status: 'SUCCEEDED' }))
+      .mockResolvedValueOnce(createJsonResponse({ id: 'a2', status: 'SUCCEEDED' }));
+
+    const llamagen = new LlamaGenClient({
+      apiKey: 'test-key',
+      fetch: fetchMock
+    });
+
+    const results = await llamagen.comic.waitForMany(['a1', 'a2'], { concurrency: 2 });
+
+    expect(results).toHaveLength(2);
+    expect(results[0].id).toBe('a1');
+    expect(results[1].id).toBe('a2');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 });

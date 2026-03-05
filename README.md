@@ -41,6 +41,30 @@ const artwork = await llamagen.comic.waitForCompletion(created.id);
 console.log(artwork.status);
 ```
 
+## AI Agent / Creator Workflows
+
+Batch create multiple generations with concurrency control:
+
+```ts
+const jobs = await llamagen.comic.createBatch(
+  [
+    { prompt: "Scene 1: hero enters the city" },
+    { prompt: "Scene 2: conflict escalates" },
+    { prompt: "Scene 3: final showdown" }
+  ],
+  { concurrency: 2, stopOnError: false }
+);
+```
+
+Wait for many generation IDs in parallel:
+
+```ts
+const finalResults = await llamagen.comic.waitForMany(
+  jobs.filter((j) => j.result?.id).map((j) => j.result!.id),
+  { concurrency: 3, intervalMs: 4000, timeoutMs: 240000 }
+);
+```
+
 ## Direct HTTP / cURL (No SDK)
 
 Base URL: `https://api.llamagen.ai/v1`
@@ -183,6 +207,22 @@ Polls until generation reaches a terminal status.
 
 Creates then waits for completion.
 
+### `llamagen.comic.createBatch(paramsList, options?)`
+
+Creates many generations with bounded concurrency.
+
+- `paramsList: CreateComicParams[]` (required)
+- `options.concurrency?: number` (default `3`)
+- `options.stopOnError?: boolean` (default `false`)
+
+### `llamagen.comic.waitForMany(artworkIds, options?)`
+
+Waits for many generation IDs with bounded concurrency.
+
+- `artworkIds: string[]` (required)
+- `options.concurrency?: number` (default `3`)
+- supports `intervalMs`, `timeoutMs`, `doneStatuses`
+
 ### Backward-compatible aliases
 
 - `llamagen.comic.createComic(...)`
@@ -240,5 +280,11 @@ A direct SDK integration demo for Next.js is available in:
 A direct SDK integration demo for Express is available in:
 
 - [`examples/express-integration`](./examples/express-integration)
+
+## AI Agent Demo
+
+Agent orchestration example (batch create + parallel wait):
+
+- [`examples/agents-integration`](./examples/agents-integration)
 
 See detailed plan in [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md).

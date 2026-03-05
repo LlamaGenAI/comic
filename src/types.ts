@@ -15,5 +15,8 @@ export type {
   ComicEntity,
   ComicArtworkResponse,
   WaitForCompletionOptions,
-  ErrorResponseBody
+  ErrorResponseBody,
+  BatchCreateOptions,
+  BatchCreateItemResult,
+  WaitManyOptions
 } from './api-types';

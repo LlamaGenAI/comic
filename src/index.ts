@@ -9,5 +9,8 @@ export type {
   WaitForCompletionOptions,
   ComicEntity,
   ComicPanel,
-  ErrorResponseBody
+  ErrorResponseBody,
+  BatchCreateOptions,
+  BatchCreateItemResult,
+  WaitManyOptions
 } from './types';

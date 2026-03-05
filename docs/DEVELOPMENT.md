@@ -47,6 +47,13 @@ Added under `examples/express-integration`:
 - Runnable server example (`server.js`)
 - Dedicated tests in `tests/express-integration.spec.ts`
 
+## AI Agent Integration Demo
+
+Added under `examples/agents-integration`:
+
+- Batch task orchestration with `createBatch`
+- Parallel completion polling with `waitForMany`
+
 ## Test Strategy
 
 Unit tests use mocked fetch to avoid external dependency and verify:
