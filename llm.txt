@@ -30,6 +30,16 @@ create_generation: POST /comics/generations
 get_generation: GET /comics/generations/:id
 auth: Authorization: Bearer YOUR_API_KEY
 
+mcp:
+endpoint: https://llamagen.ai/api/mcp
+transport: streamable_http
+auth_header: Authorization: Bearer YOUR_API_KEY
+tools:
+- create_comic_generation
+- get_comic_generation_status
+- get_api_usage
+oauth_protected_resource: https://llamagen.ai/.well-known/oauth-protected-resource
+
 types:
 - src/api-types.ts
 - src/types.ts

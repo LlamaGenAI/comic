@@ -206,6 +206,55 @@ Error response example:
 }
 ```
 
+## MCP Integration
+
+Endpoint:
+
+```text
+https://llamagen.ai/api/mcp
+```
+
+Auth header:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+Available MCP tools:
+
+- `create_comic_generation`: create a generation job
+- `get_comic_generation_status`: check status/result by id
+- `get_api_usage`: fetch current usage/quota
+
+Generic MCP client config example:
+
+```json
+{
+  "mcpServers": {
+    "llamagen": {
+      "url": "https://llamagen.ai/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+Cursor quick setup:
+
+1. Open Cursor settings and go to MCP.
+2. Add a server with Streamable HTTP transport.
+3. Set URL to `https://llamagen.ai/api/mcp`.
+4. Add header `Authorization: Bearer YOUR_API_KEY`.
+5. Verify tools list includes the 3 tools above.
+
+OAuth metadata for compliant MCP clients:
+
+```text
+https://llamagen.ai/.well-known/oauth-protected-resource
+```
+
 ## JavaScript Fetch Example
 
 ```ts
@@ -259,4 +308,5 @@ Project references:
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [SECURITY.md](./SECURITY.md)
 - [CLAUDE.md](./CLAUDE.md)
+- [docs/PROMPT_BASICS.md](./docs/PROMPT_BASICS.md)
 - [docs/ROADMAP.md](./docs/ROADMAP.md)

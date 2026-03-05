@@ -6,6 +6,10 @@ Type definitions for payloads and responses live in:
 
 - [`../src/api-types.ts`](../src/api-types.ts)
 
+Related docs:
+
+- [Prompt Basics Tutorial](./PROMPT_BASICS.md)
+
 ## Client
 
 ```ts
@@ -199,3 +203,52 @@ curl -X GET https://api.llamagen.ai/v1/comics/generations/YOUR_GENERATION_ID \
 
 - Next.js direct SDK demo: [`../examples/nextjs-integration`](../examples/nextjs-integration)
 - Express direct SDK demo: [`../examples/express-integration`](../examples/express-integration)
+
+## MCP Usage
+
+Use MCP Streamable HTTP endpoint:
+
+```text
+https://llamagen.ai/api/mcp
+```
+
+Authorization:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+Available tools:
+
+- `create_comic_generation`
+- `get_comic_generation_status`
+- `get_api_usage`
+
+Client config example:
+
+```json
+{
+  "mcpServers": {
+    "llamagen": {
+      "url": "https://llamagen.ai/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+Cursor setup:
+
+1. Go to Cursor MCP settings.
+2. Add a new Streamable HTTP server.
+3. Set URL to `https://llamagen.ai/api/mcp`.
+4. Add header `Authorization: Bearer YOUR_API_KEY`.
+5. Confirm tool list is visible.
+
+OAuth metadata endpoint:
+
+```text
+https://llamagen.ai/.well-known/oauth-protected-resource
+```
