@@ -38,6 +38,15 @@ Added under `examples/nextjs-integration`:
 - Server page integration helper (`app/page.ts`)
 - Dedicated tests in `tests/nextjs-integration.spec.ts`
 
+## Express Integration Demo
+
+Added under `examples/express-integration`:
+
+- Env client factory (`src/client.ts`)
+- SDK service wrapper (`src/comic-service.ts`)
+- Runnable server example (`server.js`)
+- Dedicated tests in `tests/express-integration.spec.ts`
+
 ## Test Strategy
 
 Unit tests use mocked fetch to avoid external dependency and verify:
@@ -64,6 +73,8 @@ Unit tests use mocked fetch to avoid external dependency and verify:
 3. Enable Issues + Discussions
 4. Add CI for lint/test/build on pull requests
 5. Add semantic version tags and release notes
+
+See [../CONTRIBUTING.md](../CONTRIBUTING.md) for contribution rules and [ROADMAP.md](./ROADMAP.md) for milestones.
 
 ## Brand / Copyright
 

@@ -58,6 +58,12 @@ describe('LlamaGenClient', () => {
     });
   });
 
+  test('throws on empty prompt before request is sent', async () => {
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    await expect(llamagen.comic.create({ prompt: '   ' })).rejects.toThrow('`prompt` is required');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   test('gets comic by artwork id', async () => {
     fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'PROCESSED' }));
 
@@ -72,6 +78,12 @@ describe('LlamaGenClient', () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe('https://api.llamagen.ai/v1/comics/generations/cm_1');
     expect(init?.method).toBe('GET');
+  });
+
+  test('throws on empty artworkId before request is sent', async () => {
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    await expect(llamagen.comic.get('')).rejects.toThrow('`artworkId` is required');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   test('supports backward-compatible aliases', async () => {
@@ -169,5 +181,38 @@ describe('LlamaGenClient', () => {
     const expectation = expect(pending).rejects.toBeInstanceOf(LlamaGenTimeoutError);
     await vi.advanceTimersByTimeAsync(20);
     await expectation;
+  });
+
+  test('retries once on 500 and then succeeds', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createJsonResponse({ error: 'server error' }, 500))
+      .mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'PROCESSED' }));
+
+    const llamagen = new LlamaGenClient({
+      apiKey: 'test-key',
+      fetch: fetchMock,
+      maxRetries: 1,
+      retryDelayMs: 0
+    });
+
+    const result = await llamagen.comic.get('cm_1');
+    expect(result.id).toBe('cm_1');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  test('does not retry on 400 responses', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ error: 'bad request' }, 400));
+
+    const llamagen = new LlamaGenClient({
+      apiKey: 'test-key',
+      fetch: fetchMock,
+      maxRetries: 3,
+      retryDelayMs: 0
+    });
+
+    const err = await llamagen.comic.get('cm_1').catch((e) => e as LlamaGenAPIError);
+    expect(err).toBeInstanceOf(LlamaGenAPIError);
+    expect(err.status).toBe(400);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

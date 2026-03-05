@@ -37,3 +37,14 @@ const result = await llamagen.comic.waitForCompletion(created.id);
 - `app/page.ts`: server-side demo helper usage
 
 This demo intentionally avoids extra `/api/*` proxy routes so users can integrate faster with fewer layers.
+
+## Alternative: direct HTTP/cURL
+
+If you do not want to use SDK, call the same endpoints directly:
+
+```bash
+curl -X POST https://api.llamagen.ai/v1/comics/generations \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"A fox detective in Tokyo","preset":"render","size":"1024x1024"}'
+```

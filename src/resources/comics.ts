@@ -14,6 +14,8 @@ export class ComicsResource {
   constructor(private readonly http: HTTPClient) {}
 
   async create(params: CreateComicParams): Promise<ComicArtworkResponse> {
+    assertNonEmpty(params?.prompt, '`prompt` is required and must be a non-empty string.');
+
     const body = {
       preset: params.preset ?? DEFAULT_PRESET,
       size: params.size ?? DEFAULT_SIZE,
@@ -27,6 +29,7 @@ export class ComicsResource {
   }
 
   async get(artworkId: string): Promise<ComicArtworkResponse> {
+    assertNonEmpty(artworkId, '`artworkId` is required and must be a non-empty string.');
     return this.http.request<ComicArtworkResponse>(`/comics/generations/${artworkId}`, {
       method: 'GET'
     });
@@ -79,4 +82,10 @@ export class ComicsResource {
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function assertNonEmpty(value: unknown, message: string): void {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new TypeError(message);
+  }
 }
