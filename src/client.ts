@@ -6,6 +6,7 @@ const DEFAULT_BASE_URL = 'https://api.llamagen.ai/v1';
 const DEFAULT_TIMEOUT_MS = 30000;
 
 export class LlamaGenClient {
+  public readonly comic: ComicsResource;
   public readonly comics: ComicsResource;
 
   constructor(options: LlamaGenClientOptions) {
@@ -20,6 +21,9 @@ export class LlamaGenClient {
       fetchImpl: options.fetch
     });
 
-    this.comics = new ComicsResource(http);
+    const comicResource = new ComicsResource(http);
+    this.comic = comicResource;
+    // Backward-compatible alias; prefer `llamagen.comic.*`.
+    this.comics = comicResource;
   }
 }

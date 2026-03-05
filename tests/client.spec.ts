@@ -27,6 +27,11 @@ describe('LlamaGenClient', () => {
     }).toThrow('`apiKey` is required');
   });
 
+  test('keeps `comics` as backward-compatible alias to `comic`', () => {
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    expect(llamagen.comics).toBe(llamagen.comic);
+  });
+
   test('creates comic with default preset and size', async () => {
     fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'LOADING' }));
 
@@ -35,7 +40,7 @@ describe('LlamaGenClient', () => {
       fetch: fetchMock
     });
 
-    await llamagen.comics.create({ prompt: 'a cat and a dog' });
+    await llamagen.comic.create({ prompt: 'a cat and a dog' });
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe('https://api.llamagen.ai/v1/comics/generations');
@@ -61,7 +66,7 @@ describe('LlamaGenClient', () => {
       fetch: fetchMock
     });
 
-    const result = await llamagen.comics.get('cm_1');
+    const result = await llamagen.comic.get('cm_1');
     expect(result.id).toBe('cm_1');
 
     const [url, init] = fetchMock.mock.calls[0];
@@ -75,8 +80,8 @@ describe('LlamaGenClient', () => {
 
     const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
 
-    await llamagen.comics.createComic({ prompt: 'legacy call' });
-    const result = await llamagen.comics.getComic('cm_1');
+    await llamagen.comic.createComic({ prompt: 'legacy call' });
+    const result = await llamagen.comic.getComic('cm_1');
 
     expect(result.status).toBe('PROCESSED');
     expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -91,7 +96,7 @@ describe('LlamaGenClient', () => {
 
     const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
 
-    const pending = llamagen.comics.waitForCompletion('cm_1', {
+    const pending = llamagen.comic.waitForCompletion('cm_1', {
       intervalMs: 10,
       timeoutMs: 1000
     });
@@ -113,7 +118,7 @@ describe('LlamaGenClient', () => {
 
     const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
 
-    const pending = llamagen.comics.createAndWait(
+    const pending = llamagen.comic.createAndWait(
       { prompt: 'storm over city' },
       { intervalMs: 10, timeoutMs: 1000 }
     );
@@ -129,7 +134,7 @@ describe('LlamaGenClient', () => {
     fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'FAILED' }));
 
     const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
-    const result = await llamagen.comics.waitForCompletion('cm_1');
+    const result = await llamagen.comic.waitForCompletion('cm_1');
 
     expect(result.status).toBe('FAILED');
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -142,7 +147,7 @@ describe('LlamaGenClient', () => {
 
     const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
 
-    const err = await llamagen.comics.get('cm_1').catch((e) => e as LlamaGenAPIError);
+    const err = await llamagen.comic.get('cm_1').catch((e) => e as LlamaGenAPIError);
     expect(err).toBeInstanceOf(LlamaGenAPIError);
     expect(err.status).toBe(403);
   });
@@ -156,7 +161,7 @@ describe('LlamaGenClient', () => {
 
     const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
 
-    const pending = llamagen.comics.waitForCompletion('cm_1', {
+    const pending = llamagen.comic.waitForCompletion('cm_1', {
       intervalMs: 10,
       timeoutMs: 15
     });

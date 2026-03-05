@@ -4,7 +4,7 @@
   "description": "Official LlamaGen comic SDK for JavaScript and TypeScript",
   "license": "MIT",
   "author": "llamagne.ai",
-  "homepage": "https://llamagen.ai/openapi",
+  "homepage": "http://llamagen.ai/comic-api",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LlamaGenAI/comic.git"

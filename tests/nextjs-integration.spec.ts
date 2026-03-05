@@ -21,7 +21,7 @@ describe('nextjs integration demo', () => {
 
   test('comics service proxies SDK methods', async () => {
     const client = {
-      comics: {
+      comic: {
         create: vi.fn().mockResolvedValue({ id: 'gen_1', status: 'PENDING' }),
         get: vi.fn().mockResolvedValue({ id: 'gen_1', status: 'SUCCEEDED' })
       }
@@ -33,8 +33,8 @@ describe('nextjs integration demo', () => {
 
     expect(created.id).toBe('gen_1');
     expect(fetched.status).toBe('SUCCEEDED');
-    expect(client.comics.create).toHaveBeenCalledWith({ prompt: 'demo prompt' });
-    expect(client.comics.get).toHaveBeenCalledWith('gen_1');
+    expect(client.comic.create).toHaveBeenCalledWith({ prompt: 'demo prompt' });
+    expect(client.comic.get).toHaveBeenCalledWith('gen_1');
   });
 
   test('POST handler validates prompt', async () => {

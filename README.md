@@ -17,11 +17,11 @@ const llamagen = new LlamaGenClient({
   apiKey: 'YOUR_API_KEY'
 });
 
-const created = await llamagen.comics.create({
+const created = await llamagen.comic.create({
   prompt: 'A sci-fi story about two friends on Mars'
 });
 
-const artwork = await llamagen.comics.waitForCompletion(created.id);
+const artwork = await llamagen.comic.waitForCompletion(created.id);
 console.log(artwork.status);
 ```
 
@@ -34,7 +34,7 @@ console.log(artwork.status);
 - `timeoutMs?: number` (default: `30000`)
 - `fetch?: typeof fetch` (optional custom fetch)
 
-### `llamagen.comics.create(params)`
+### `llamagen.comic.create(params)`
 
 Creates a comic generation task.
 
@@ -44,11 +44,11 @@ Creates a comic generation task.
 - `model?: string` (optional, API chooses model when omitted)
 - Any extra fields are forwarded to API.
 
-### `llamagen.comics.get(artworkId)`
+### `llamagen.comic.get(artworkId)`
 
 Fetches a comic generation by ID.
 
-### `llamagen.comics.waitForCompletion(artworkId, options?)`
+### `llamagen.comic.waitForCompletion(artworkId, options?)`
 
 Polls until generation reaches a terminal status.
 
@@ -56,14 +56,14 @@ Polls until generation reaches a terminal status.
 - `timeoutMs?: number` (default `180000`)
 - `doneStatuses?: string[]` (default `['SUCCEEDED','FAILED','PROCESSED','COMPLETED']`)
 
-### `llamagen.comics.createAndWait(params, options?)`
+### `llamagen.comic.createAndWait(params, options?)`
 
 Creates then waits for completion.
 
 ### Backward-compatible aliases
 
-- `llamagen.comics.createComic(...)`
-- `llamagen.comics.getComic(...)`
+- `llamagen.comic.createComic(...)`
+- `llamagen.comic.getComic(...)`
 
 ## Errors
 

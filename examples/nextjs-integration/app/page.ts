@@ -4,7 +4,7 @@ import { createServerLlamaGenClient } from '../lib/client';
 // In a real page.tsx, call this helper and render the returned data.
 export async function getDemoComicGeneration() {
   const llamagen = createServerLlamaGenClient();
-  return llamagen.comics.create({
+  return llamagen.comic.create({
     prompt: 'A short four-panel comic about a robot learning to cook.',
     preset: 'render',
     size: '1024x1024'

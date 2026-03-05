@@ -6,13 +6,13 @@ export interface ComicsService {
   getGeneration(id: string): Promise<ComicArtworkResponse>;
 }
 
-export function createComicsService(client: Pick<LlamaGenClient, 'comics'>): ComicsService {
+export function createComicsService(client: Pick<LlamaGenClient, 'comic'>): ComicsService {
   return {
     createGeneration(params) {
-      return client.comics.create(params);
+      return client.comic.create(params);
     },
     getGeneration(id) {
-      return client.comics.get(id);
+      return client.comic.get(id);
     }
   };
 }
