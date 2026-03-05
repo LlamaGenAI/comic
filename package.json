@@ -1,0 +1,56 @@
+{
+  "name": "comic",
+  "version": "2.0.0",
+  "description": "Official LlamaGen comic SDK for JavaScript and TypeScript",
+  "license": "MIT",
+  "author": "llamagne.ai",
+  "homepage": "https://llamagen.ai/openapi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LlamaGenAI/comic.git"
+  },
+  "keywords": [
+    "llamagen",
+    "comic",
+    "webtoon",
+    "sdk",
+    "ai"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "remote:set": "node scripts/set-remote.mjs",
+    "preflight": "npm run lint && npm test && npm run build",
+    "release:patch": "node scripts/release.mjs patch",
+    "release:minor": "node scripts/release.mjs minor",
+    "release:major": "node scripts/release.mjs major"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.14",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  }
+}

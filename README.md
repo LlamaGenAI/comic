@@ -30,7 +30,7 @@ console.log(artwork.status);
 ### `new LlamaGenClient(options)`
 
 - `apiKey: string` (required)
-- `baseURL?: string` (default: `https://llamagen.ai/api/v1`)
+- `baseURL?: string` (default: `https://api.llamagen.ai/v1`)
 - `timeoutMs?: number` (default: `30000`)
 - `fetch?: typeof fetch` (optional custom fetch)
 
@@ -40,7 +40,8 @@ Creates a comic generation task.
 
 - `prompt: string` (required)
 - `size?: string` (default: `1024x1024`)
-- `model?: string` (default: `cyani-model`)
+- `preset?: string` (default: `render`)
+- `model?: string` (optional, API chooses model when omitted)
 - Any extra fields are forwarded to API.
 
 ### `llamagen.comics.get(artworkId)`
@@ -49,11 +50,11 @@ Fetches a comic generation by ID.
 
 ### `llamagen.comics.waitForCompletion(artworkId, options?)`
 
-Polls until generation reaches a done status.
+Polls until generation reaches a terminal status.
 
 - `intervalMs?: number` (default `5000`)
 - `timeoutMs?: number` (default `180000`)
-- `doneStatuses?: string[]` (default `['PROCESSED','SUCCEEDED','COMPLETED']`)
+- `doneStatuses?: string[]` (default `['SUCCEEDED','FAILED','PROCESSED','COMPLETED']`)
 
 ### `llamagen.comics.createAndWait(params, options?)`
 
@@ -77,5 +78,27 @@ npm run lint
 npm test
 npm run build
 ```
+
+## Git & Release Workflow
+
+Update `origin` quickly:
+
+```bash
+npm run remote:set -- git@github.com:LlamaGenAI/comic.git
+```
+
+Semantic version release (auto lint/test/build + version bump + git tag + push):
+
+```bash
+npm run release:patch
+npm run release:minor
+npm run release:major
+```
+
+## Next.js Demo
+
+A full-stack integration demo with API routes and tests is available in:
+
+- [`examples/nextjs-integration`](/Users/terry/code/comic/examples/nextjs-integration)
 
 See detailed plan in [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md).
