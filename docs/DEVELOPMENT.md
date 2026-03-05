@@ -19,7 +19,7 @@ const llamagen = new LlamaGenClient({ apiKey: 'YOUR_API_KEY' });
 
 ## Covered Capabilities
 
-This package includes all capabilities present in `webtoon-sdk-demo/packages/sdk`:
+This package includes all core comic generation capabilities from the original reference implementation:
 
 - Create comic generation (`POST /comics/generations`)
 - Get comic generation by ID (`GET /comics/generations/:id`)
@@ -34,8 +34,7 @@ Additional developer-focused helper:
 Added under `examples/nextjs-integration`:
 
 - Server SDK client factory (`lib/client.ts`)
-- Service layer (`lib/comics-service.ts`)
-- API routes (`app/api/comics`, `app/api/comics/[id]`)
+- Direct SDK service wrapper (`lib/comic-sdk.ts`)
 - Server page integration helper (`app/page.ts`)
 - Dedicated tests in `tests/nextjs-integration.spec.ts`
 

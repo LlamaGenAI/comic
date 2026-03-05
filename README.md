@@ -8,6 +8,18 @@ Official JavaScript/TypeScript SDK for LlamaGen comic APIs.
 npm install comic
 ```
 
+## How To Get `YOUR_API_KEY`
+
+1. Open [LlamaGen Comic API Dashboard](http://llamagen.ai/comic-api).
+2. Sign in and create/view an API token in the dashboard.
+3. Use that token as `YOUR_API_KEY` in this SDK.
+
+Authentication uses Bearer token:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
 ## Quick Start
 
 ```ts
@@ -105,7 +117,7 @@ NPM_OTP=123456 npm run publish:minor
 
 ## Next.js Demo
 
-A full-stack integration demo with API routes and tests is available in:
+A direct SDK integration demo for Next.js is available in:
 
 - [`examples/nextjs-integration`](./examples/nextjs-integration)
 

@@ -1,35 +1,39 @@
-# Next.js Integration Demo
+# Next.js Integration Demo (Direct SDK)
 
-This folder demonstrates a full-stack Next.js integration using the `comic` SDK.
+This demo shows the recommended integration for Next.js: install `comic` and call the SDK directly in server-side code.
 
-## What is included
-
-- Server client wiring from environment variables
-- API routes:
-  - `POST /api/comics` to create generation
-  - `GET /api/comics/[id]` to query generation
-- Server helper for app router page integration (`app/page.ts`)
-- Dedicated tests for service and route handlers
-
-## Env
-
-Set one of the following in your Next.js app:
-
-- `LLAMAGEN_API_KEY` (recommended)
-- `WEBTOON_API_KEY` (backward compatible)
-
-## Route usage
-
-Create generation:
+## Install
 
 ```bash
-curl -X POST http://localhost:3000/api/comics \
-  -H 'Content-Type: application/json' \
-  -d '{"prompt":"A fox detective in Tokyo","preset":"render","size":"1024x1024"}'
+npm i comic
 ```
 
-Get generation:
+## Environment
 
-```bash
-curl http://localhost:3000/api/comics/gen_123
+Set:
+
+- `LLAMAGEN_API_KEY`
+
+## Recommended usage in Next.js (Server Component / Server Action)
+
+```ts
+import { LlamaGenClient } from 'comic';
+
+const llamagen = new LlamaGenClient({ apiKey: process.env.LLAMAGEN_API_KEY! });
+
+const created = await llamagen.comic.create({
+  prompt: 'A fox detective in Tokyo',
+  preset: 'render',
+  size: '1024x1024'
+});
+
+const result = await llamagen.comic.waitForCompletion(created.id);
 ```
+
+## Demo files
+
+- `lib/client.ts`: client factory from env
+- `lib/comic-sdk.ts`: direct SDK service wrapper
+- `app/page.ts`: server-side demo helper usage
+
+This demo intentionally avoids extra `/api/*` proxy routes so users can integrate faster with fewer layers.
