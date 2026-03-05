@@ -13,7 +13,7 @@ quickstart:
 1) npm install comic
 2) import { LlamaGenClient } from 'comic'
 3) const llamagen = new LlamaGenClient({ apiKey: 'YOUR_API_KEY' })
-4) await llamagen.comic.create({ prompt: '...' })
+4) await llamagen.comic.create({ prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, ...' })
 5) await llamagen.comic.waitForCompletion(id)
 
 sdk_namespace:

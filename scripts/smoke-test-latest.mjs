@@ -13,7 +13,9 @@ if (!apiKey || apiKey === 'YOUR_API_KEY') {
   throw new Error('LLAMAGEN_API_KEY is missing. Set it in .env.local or environment variables.');
 }
 
-const prompt = process.env.SMOKE_PROMPT || 'A superhero cat saving a city from giant mice';
+const prompt =
+  process.env.SMOKE_PROMPT ||
+  'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A superhero cat saving a city from giant mice';
 const intervalMs = Number(process.env.SMOKE_INTERVAL_MS || 5000);
 const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS || 180000);
 

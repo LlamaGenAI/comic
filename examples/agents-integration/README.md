@@ -9,9 +9,9 @@ const llamagen = new LlamaGenClient({ apiKey: 'YOUR_API_KEY' });
 
 const jobs = await llamagen.comic.createBatch(
   [
-    { prompt: 'chapter 1 opening' },
-    { prompt: 'chapter 1 conflict' },
-    { prompt: 'chapter 1 ending' }
+    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, chapter 1 opening' },
+    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, chapter 1 conflict' },
+    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, chapter 1 ending' }
   ],
   { concurrency: 2, stopOnError: false }
 );

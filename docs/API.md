@@ -64,7 +64,7 @@ One-shot create and poll.
 
 ```ts
 const done = await llamagen.comic.createAndWait({
-  prompt: 'A detective story in Tokyo'
+  prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A detective story in Tokyo'
 });
 ```
 
@@ -75,9 +75,9 @@ Agent-friendly helper to submit many generation tasks with concurrency limits.
 ```ts
 const batch = await llamagen.comic.createBatch(
   [
-    { prompt: 'Panel 1: intro' },
-    { prompt: 'Panel 2: action' },
-    { prompt: 'Panel 3: ending' }
+    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, Panel 1: intro' },
+    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, Panel 2: action' },
+    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, Panel 3: ending' }
   ],
   { concurrency: 2, stopOnError: false }
 );
@@ -109,7 +109,7 @@ const done = await llamagen.comic.waitForMany(ids, {
 ## Backward-compatible aliases
 
 ```ts
-await llamagen.comic.createComic({ prompt: 'legacy path' });
+await llamagen.comic.createComic({ prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, legacy path' });
 await llamagen.comic.getComic('cm123');
 ```
 
@@ -123,7 +123,7 @@ const createdRes = await fetch('https://api.llamagen.ai/v1/comics/generations', 
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    prompt: 'A fox detective in Tokyo',
+    prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A fox detective in Tokyo',
     preset: 'neutral',
     size: '1024x1024'
   })
@@ -182,7 +182,7 @@ curl -X POST https://api.llamagen.ai/v1/comics/generations \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "prompt": "A fox detective in Tokyo",
+    "prompt": "american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A fox detective in Tokyo",
     "preset": "neutral",
     "size": "1024x1024"
   }'

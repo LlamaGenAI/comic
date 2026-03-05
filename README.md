@@ -41,7 +41,7 @@ const llamagen = new LlamaGenClient({
 });
 
 const created = await llamagen.comic.create({
-  prompt: 'A sci-fi story about two friends on Mars'
+  prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A sci-fi story about two friends on Mars'
 });
 
 const result = await llamagen.comic.waitForCompletion(created.id);
@@ -98,7 +98,7 @@ Common types:
 
 ```ts
 const created = await llamagen.comic.create({
-  prompt: 'A superhero cat saving a city from giant mice',
+  prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A superhero cat saving a city from giant mice',
   preset: 'neutral',
   size: '1024x1024'
 });
@@ -114,9 +114,9 @@ const done = await llamagen.comic.waitForCompletion(created.id, {
 ```ts
 const jobs = await llamagen.comic.createBatch(
   [
-    { prompt: 'Scene 1: hero enters the city' },
-    { prompt: 'Scene 2: conflict escalates' },
-    { prompt: 'Scene 3: final showdown' }
+    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, Scene 1: hero enters the city' },
+    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, Scene 2: conflict escalates' },
+    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, Scene 3: final showdown' }
   ],
   { concurrency: 2, stopOnError: false }
 );
@@ -144,7 +144,7 @@ Request body:
 
 ```json
 {
-  "prompt": "A superhero cat saving a city from giant mice",
+  "prompt": "american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A superhero cat saving a city from giant mice",
   "preset": "neutral",
   "size": "1024x1024",
   "model": "optional-model-id"
@@ -158,7 +158,7 @@ curl -X POST "https://api.llamagen.ai/v1/comics/generations" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "prompt": "A superhero cat saving a city from giant mice",
+    "prompt": "american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A superhero cat saving a city from giant mice",
     "preset": "neutral",
     "size": "1024x1024"
   }'
@@ -216,7 +216,7 @@ const response = await fetch('https://api.llamagen.ai/v1/comics/generations', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    prompt: 'A superhero cat saving a city from giant mice',
+    prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A superhero cat saving a city from giant mice',
     preset: 'neutral',
     size: '1024x1024'
   })
