@@ -10,6 +10,7 @@ export interface LlamaGenClientOptions {
 }
 export type {
   ComicGenerationStatus,
+  ComicSize,
   CreateComicParams,
   ComicPanel,
   ComicEntity,

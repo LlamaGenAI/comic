@@ -64,6 +64,14 @@ describe('LlamaGenClient', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  test('throws on unsupported size before request is sent', async () => {
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    await expect(
+      llamagen.comic.create({ prompt: 'hero in city', size: '999x999' as never })
+    ).rejects.toThrow('`size` must be one of');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   test('gets comic by artwork id', async () => {
     fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'PROCESSED' }));
 

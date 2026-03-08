@@ -153,8 +153,22 @@ const detail = await detailRes.json();
 
 - `prompt: string` required
 - `preset?: string` optional (default `neutral`)
-- `size?: string` optional (example `1024x1024`)
+- `size?: ComicSize` optional (default `1024x1024`)
 - `model?: string` optional
+
+Supported `size` values:
+
+- `1024x1024`
+- `512x768`
+- `512x1024`
+- `576x1024`
+- `768x1024`
+- `1024x768`
+- `768x512`
+- `1024x576`
+- `1024x512`
+
+The SDK validates `size` before sending requests and throws `TypeError` for unsupported values.
 
 `POST /comics/generations` response (example):
 

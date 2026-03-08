@@ -86,11 +86,16 @@ Request/response types are maintained in:
 Common types:
 
 - `CreateComicParams`
+- `ComicSize`
 - `ComicGenerationResponse`
 - `ComicDetailResponse`
 - `WaitForCompletionOptions`
 - `BatchCreateOptions`
 - `WaitForManyOptions`
+
+Runtime constant:
+
+- `SUPPORTED_COMIC_SIZES`
 
 ## SDK Examples
 
@@ -150,6 +155,18 @@ Request body:
   "model": "optional-model-id"
 }
 ```
+
+Supported `size` values:
+
+- `1024x1024` (1:1)
+- `512x768` (2:3)
+- `512x1024` (1:2)
+- `576x1024` (9:16)
+- `768x1024` (3:4)
+- `1024x768` (4:3)
+- `768x512` (3:2)
+- `1024x576` (16:9)
+- `1024x512` (2:1)
 
 cURL:
 

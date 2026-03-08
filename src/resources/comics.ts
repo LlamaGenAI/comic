@@ -1,6 +1,7 @@
 import type {
   BatchCreateItemResult,
   BatchCreateOptions,
+  ComicSize,
   ComicArtworkResponse,
   CreateComicParams,
   WaitManyOptions,
@@ -8,16 +9,21 @@ import type {
 } from '../types';
 import { LlamaGenTimeoutError } from '../errors';
 import { HTTPClient } from '../http';
+import { SUPPORTED_COMIC_SIZES } from '../api-types';
 
-const DEFAULT_SIZE = '1024x1024';
+const DEFAULT_SIZE: ComicSize = '1024x1024';
 const DEFAULT_PRESET = 'neutral';
 const DEFAULT_DONE_STATUSES = ['SUCCEEDED', 'FAILED', 'PROCESSED', 'COMPLETED'];
+const SUPPORTED_COMIC_SIZE_SET = new Set<string>(SUPPORTED_COMIC_SIZES);
 
 export class ComicsResource {
   constructor(private readonly http: HTTPClient) {}
 
   async create(params: CreateComicParams): Promise<ComicArtworkResponse> {
     assertNonEmpty(params?.prompt, '`prompt` is required and must be a non-empty string.');
+    if (params?.size !== undefined) {
+      assertSupportedSize(params.size);
+    }
 
     const body = {
       preset: params.preset ?? DEFAULT_PRESET,
@@ -164,5 +170,13 @@ async function runWithConcurrency<TInput, TOutput>(
 function assertNonEmpty(value: unknown, message: string): void {
   if (typeof value !== 'string' || value.trim().length === 0) {
     throw new TypeError(message);
+  }
+}
+
+function assertSupportedSize(value: string): void {
+  if (!SUPPORTED_COMIC_SIZE_SET.has(value)) {
+    throw new TypeError(
+      `\`size\` must be one of: ${SUPPORTED_COMIC_SIZES.join(', ')}. Received: ${value}`
+    );
   }
 }

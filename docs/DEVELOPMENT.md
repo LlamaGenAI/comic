@@ -15,6 +15,7 @@ const llamagen = new LlamaGenClient({ apiKey: 'YOUR_API_KEY' });
 - API spec aligned with comic docs page:
   - Base URL: `https://api.llamagen.ai/v1`
   - Create params include `prompt`, optional `preset` (default `neutral`), optional `size`, optional `model`
+  - Supported `size` values: `1024x1024`, `512x768`, `512x1024`, `576x1024`, `768x1024`, `1024x768`, `768x512`, `1024x576`, `1024x512`
   - Generation statuses include `PENDING`, `PROCESSING`, `SUCCEEDED`, `FAILED`
 
 ## Covered Capabilities

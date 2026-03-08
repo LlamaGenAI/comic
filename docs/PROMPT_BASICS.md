@@ -88,6 +88,9 @@ const created = await client.comic.create({
 });
 ```
 
+Supported `size` values:
+`1024x1024`, `512x768`, `512x1024`, `576x1024`, `768x1024`, `1024x768`, `768x512`, `1024x576`, `1024x512`.
+
 ## 4) Multi-panel Story Pattern
 
 For multi-panel generation, keep visual style and character block fixed, only change panel action:

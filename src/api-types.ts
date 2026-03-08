@@ -7,9 +7,23 @@ export type ComicGenerationStatus =
   | 'COMPLETED'
   | (string & {});
 
+export const SUPPORTED_COMIC_SIZES = [
+  '1024x1024',
+  '512x768',
+  '512x1024',
+  '576x1024',
+  '768x1024',
+  '1024x768',
+  '768x512',
+  '1024x576',
+  '1024x512'
+] as const;
+
+export type ComicSize = (typeof SUPPORTED_COMIC_SIZES)[number];
+
 export interface CreateComicParams {
   prompt: string;
-  size?: string;
+  size?: ComicSize;
   model?: string;
   preset?: string;
   [key: string]: unknown;
