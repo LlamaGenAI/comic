@@ -39,14 +39,16 @@ export class HTTPClient {
       const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
 
       try {
+        const headers = {
+          Authorization: `Bearer ${this.apiKey}`,
+          ...(isFormData(init.body) ? {} : { 'Content-Type': 'application/json' }),
+          ...(init.headers ?? {})
+        };
+
         const response = await this.fetchImpl(`${this.baseURL}${path}`, {
           ...init,
           signal: controller.signal,
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json',
-            ...(init.headers ?? {})
-          }
+          headers
         });
 
         const text = await response.text();
@@ -94,6 +96,10 @@ function safeJsonParse(input: string): unknown {
 
 function shouldRetry(status: number): boolean {
   return status === 429 || status >= 500;
+}
+
+function isFormData(value: unknown): value is FormData {
+  return typeof FormData !== 'undefined' && value instanceof FormData;
 }
 
 function delay(ms: number): Promise<void> {

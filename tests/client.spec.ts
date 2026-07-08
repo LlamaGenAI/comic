@@ -1,6 +1,7 @@
+import { createHmac } from 'node:crypto';
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
-import { LlamaGenClient } from '../src';
-import { LlamaGenAPIError, LlamaGenTimeoutError } from '../src/errors';
+import { constructWebhookEvent, LlamaGenClient, verifyWebhookSignature } from '../src';
+import { LlamaGenAPIError, LlamaGenTimeoutError, LlamaGenWebhookSignatureError } from '../src/errors';
 import type { FetchLike } from '../src/types';
 
 function createJsonResponse(data: unknown, status = 200): Response {
@@ -30,6 +31,7 @@ describe('LlamaGenClient', () => {
   test('keeps `comics` as backward-compatible alias to `comic`', () => {
     const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
     expect(llamagen.comics).toBe(llamagen.comic);
+    expect(llamagen.animations).toBe(llamagen.animation);
   });
 
   test('creates comic with default preset and size', async () => {
@@ -72,6 +74,45 @@ describe('LlamaGenClient', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  test('creates comic with latest structured fields', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'LOADING' }));
+
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    await llamagen.comic.create({
+      prompt: 'a two page mystery',
+      style: 'manga',
+      pagination: { totalPages: 2, panelsPerPage: 4 },
+      comicRoles: [{ name: 'Leo', image: 'https://example.com/leo.png' }],
+      comicLocations: [{ name: 'Dreamwood Forest', image: 'https://example.com/forest.png' }],
+      attachments: [{ type: 'image', url: 'https://example.com/reference.png' }],
+      language: 'en',
+      upscale: '2K'
+    });
+
+    const parsed = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
+    expect(parsed).toMatchObject({
+      prompt: 'a two page mystery',
+      style: 'manga',
+      pagination: { totalPages: 2, panelsPerPage: 4 },
+      language: 'en',
+      upscale: '2K'
+    });
+    expect(parsed.comicRoles[0].name).toBe('Leo');
+  });
+
+  test('rejects conflicting comic layout modes', async () => {
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+
+    await expect(
+      llamagen.comic.create({
+        prompt: 'conflicting layout',
+        fixPanelNum: 4,
+        pagination: { totalPages: 2, panelsPerPage: 4 }
+      })
+    ).rejects.toThrow('`fixPanelNum` and `pagination` cannot be used together');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   test('gets comic by artwork id', async () => {
     fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'PROCESSED' }));
 
@@ -86,6 +127,65 @@ describe('LlamaGenClient', () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe('https://api.llamagen.ai/v1/comics/generations/cm_1');
     expect(init?.method).toBe('GET');
+  });
+
+  test('gets a specific comic panel with query parameters', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'PROCESSED' }));
+
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    await llamagen.comic.get('cm_1', { page: 1, panel: 2 });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('https://api.llamagen.ai/v1/comics/generations/cm_1?page=1&panel=2');
+    expect(init?.method).toBe('GET');
+  });
+
+  test('continues an existing comic', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'LOADING' }));
+
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    await llamagen.comic.continueWrite('cm_1', {
+      prompt: 'continue into the hidden arcade',
+      fixPanelNum: 4,
+      attachments: [{ type: 'image', url: 'https://example.com/reference.png' }]
+    });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('https://api.llamagen.ai/v1/comics/generations/cm_1');
+    expect(init?.method).toBe('PATCH');
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      action: 'continueWrite',
+      prompt: 'continue into the hidden arcade',
+      fixPanelNum: 4
+    });
+  });
+
+  test('updates a single comic panel', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'LOADING' }));
+
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    await llamagen.comic.updatePanel('cm_1', {
+      page: 0,
+      panel: 2,
+      panelPrompt: 'make Leo look hopeful'
+    });
+
+    const parsed = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
+    expect(parsed).toMatchObject({
+      action: 'regeneratePanel',
+      page: 0,
+      panel: 2,
+      panelPrompt: 'make Leo look hopeful'
+    });
+  });
+
+  test('rejects panel update without revised prompt, images, or caption', async () => {
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+
+    await expect(llamagen.comic.updatePanel('cm_1', { panel: 1 })).rejects.toThrow(
+      'One of `panelPrompt`, `prompt`, `images`, or `caption` is required'
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   test('throws on empty artworkId before request is sent', async () => {
@@ -105,6 +205,31 @@ describe('LlamaGenClient', () => {
 
     expect(result.status).toBe('PROCESSED');
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  test('gets comic api usage', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ apiUsageCount: 2, apiMaxUsage: 10 }));
+
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    const usage = await llamagen.comic.usage();
+
+    expect(usage.apiUsageCount).toBe(2);
+    expect(fetchMock.mock.calls[0][0]).toBe('https://api.llamagen.ai/v1/comics/usage');
+  });
+
+  test('uploads comic reference assets without forcing json content type', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ fileUrl: 'https://cdn.example.com/ref.png' }));
+
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    const response = await llamagen.comic.upload(new Blob(['image-bytes'], { type: 'image/png' }), 'ref.png');
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(response.fileUrl).toBe('https://cdn.example.com/ref.png');
+    expect(fetchMock.mock.calls[0][0]).toBe('https://api.llamagen.ai/v1/comics/upload');
+    expect(init?.method).toBe('POST');
+    expect(init?.body).toBeInstanceOf(FormData);
+    expect(init?.headers).toMatchObject({ Authorization: 'Bearer test-key' });
+    expect(init?.headers).not.toHaveProperty('Content-Type');
   });
 
   test('waitForCompletion polls until done status', async () => {
@@ -275,5 +400,79 @@ describe('LlamaGenClient', () => {
     expect(results[0].id).toBe('a1');
     expect(results[1].id).toBe('a2');
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  test('creates animation generation with video options', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'anim_1', status: 'LOADING' }));
+
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    await llamagen.animation.create({
+      prompt: 'a hero crosses a neon city',
+      videoOptions: {
+        duration: 5,
+        resolution: '720p',
+        aspect_ratio: '16:9',
+        image: 'https://example.com/first-frame.png',
+        last_frame_image: 'https://example.com/last-frame.png'
+      }
+    });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('https://api.llamagen.ai/v1/artworks/generations');
+    expect(init?.method).toBe('POST');
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      prompt: 'a hero crosses a neon city',
+      videoOptions: {
+        duration: 5,
+        resolution: '720p',
+        aspect_ratio: '16:9'
+      }
+    });
+  });
+
+  test('gets animation generation status', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ id: 'anim_1', status: 'PROCESSED' }));
+
+    const llamagen = new LlamaGenClient({ apiKey: 'test-key', fetch: fetchMock });
+    const result = await llamagen.animation.get('anim_1');
+
+    expect(result.status).toBe('PROCESSED');
+    expect(fetchMock.mock.calls[0][0]).toBe('https://api.llamagen.ai/v1/artworks/generations/anim_1');
+  });
+
+  test('verifies LlamaGen webhook signatures', () => {
+    const payload = JSON.stringify({
+      type: 'comic.generation.completed',
+      data: { id: 'cm_1', status: 'PROCESSED' }
+    });
+    const secret = 'whsec_test';
+    const timestamp = '1715510400';
+    const digest = createHmac('sha256', secret).update(`${timestamp}.${payload}`).digest('hex');
+    const headers = {
+      'X-Llama-Webhook-Id': 'evt_1',
+      'X-Llama-Webhook-Timestamp': timestamp,
+      'X-Llama-Webhook-Signature': `v1=${digest}`,
+      'X-Llama-Webhook-Request-Id': 'req_1'
+    };
+
+    expect(verifyWebhookSignature(payload, headers, secret, { now: 1715510400 })).toBe(true);
+
+    const event = constructWebhookEvent(payload, headers, secret, { now: 1715510400 });
+    expect(event.id).toBe('evt_1');
+    expect(event.requestId).toBe('req_1');
+    expect(event.type).toBe('comic.generation.completed');
+  });
+
+  test('throws for invalid webhook signatures', () => {
+    const payload = JSON.stringify({ type: 'comic.generation.failed', data: {} });
+    const headers = {
+      'X-Llama-Webhook-Timestamp': '1715510400',
+      'X-Llama-Webhook-Signature': 'v1=bad'
+    };
+
+    expect(verifyWebhookSignature(payload, headers, 'whsec_test', { now: 1715510400 })).toBe(false);
+    expect(() => constructWebhookEvent(payload, headers, 'whsec_test', { now: 1715510400 })).toThrow(
+      LlamaGenWebhookSignatureError
+    );
   });
 });

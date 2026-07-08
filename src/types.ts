@@ -9,15 +9,31 @@ export interface LlamaGenClientOptions {
   fetch?: FetchLike;
 }
 export type {
+  AnimationArtworkResponse,
+  AnimationGenerationStatus,
+  AnimationVideoOptions,
+  ComicAttachment,
+  ComicLocation,
   ComicGenerationStatus,
+  ComicPagination,
   ComicSize,
+  ComicUsage,
+  ComicUploadResponse,
+  ComicUsageDelta,
   CreateComicParams,
+  CreateAnimationParams,
+  ContinueComicParams,
+  GetComicOptions,
   ComicPanel,
   ComicEntity,
   ComicArtworkResponse,
+  UpdateComicPanelParams,
   WaitForCompletionOptions,
   ErrorResponseBody,
   BatchCreateOptions,
   BatchCreateItemResult,
-  WaitManyOptions
+  WaitManyOptions,
+  WebhookEvent,
+  WebhookEventType,
+  WebhookVerificationOptions
 } from './api-types';

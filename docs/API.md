@@ -2,216 +2,185 @@
 
 Base URL: `https://api.llamagen.ai/v1`
 
-Type definitions for payloads and responses live in:
-
-- [`../src/api-types.ts`](../src/api-types.ts)
-
-Related docs:
-
-- [Prompt Basics Tutorial](./PROMPT_BASICS.md)
+This package covers LlamaGen's Comic API and Animation API. Type definitions live in [`../src/api-types.ts`](../src/api-types.ts).
 
 ## Client
 
 ```ts
 import { LlamaGenClient } from 'comic';
 
-const llamagen = new LlamaGenClient({ apiKey: 'YOUR_API_KEY' });
+const llamagen = new LlamaGenClient({
+  apiKey: process.env.LLAMAGEN_API_KEY!,
+  timeoutMs: 30000,
+  maxRetries: 2,
+  retryDelayMs: 500
+});
 ```
 
-Optional client settings:
+## Comic API
 
-- `timeoutMs`: request timeout in ms (default `30000`)
-- `maxRetries`: retry count for `429`/`5xx` responses (default `2`)
-- `retryDelayMs`: base delay between retries in ms (default `500`)
+### `llamagen.comic.create(params)`
 
-## `llamagen.comic.create(params)`
-
-Creates a comic generation task.
+Creates a comic generation through `POST /comics/generations`.
 
 ```ts
 const created = await llamagen.comic.create({
-  prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, An epic battle in a cyberpunk city',
-  preset: 'neutral',
-  size: '1024x1024'
+  prompt: 'A 4-panel comic about Leo finding a glowing key in a quiet library.',
+  style: 'manga',
+  fixPanelNum: 4
 });
 ```
 
-## `llamagen.comic.get(artworkId)`
+Supported input families:
 
-Gets generation detail by id.
+- Story input: `prompt`, `promptUrl`, `style`, `preset`, `size`.
+- Layout: `fixPanelNum` for one page, or `pagination.totalPages` plus `pagination.panelsPerPage` for multi-page mode.
+- Continuity references: `comicRoles`, `comicLocations`, `images`, `attachments`.
+- Output controls: `language`, `upscale`.
 
-Input validation:
+The SDK validates that `prompt` is non-empty, supported `size` values are used, and `fixPanelNum` is not mixed with `pagination`.
 
-- `create(...)` throws `TypeError` if `prompt` is empty
-- `get(...)` throws `TypeError` if `artworkId` is empty
+### `llamagen.comic.get(id, options?)`
+
+Gets a generation through `GET /comics/generations/{generationId}`.
 
 ```ts
-const artwork = await llamagen.comic.get('cm23iyz3r0001le03m39ykh8v');
+const generation = await llamagen.comic.get('gen_123');
+const singlePanel = await llamagen.comic.get('gen_123', { page: 0, panel: 2 });
 ```
 
-## `llamagen.comic.waitForCompletion(artworkId, options?)`
+`page` and `panel` are zero-based.
 
-Polls until one of done statuses is reached.
+### `llamagen.comic.continueWrite(id, params)`
+
+Extends an existing story through `PATCH /comics/generations/{generationId}` with `action: "continueWrite"`.
 
 ```ts
-const done = await llamagen.comic.waitForCompletion('cm23iyz3r0001le03m39ykh8v', {
-  intervalMs: 5000,
-  timeoutMs: 180000
+await llamagen.comic.continueWrite('gen_123', {
+  prompt: 'The two friends walk deeper into the neon city and find a hidden arcade.',
+  pagination: { totalPages: 1, panelsPerPage: 4 },
+  attachments: [{ type: 'image', url: 'https://example.com/reference.png' }]
 });
 ```
 
-Default terminal statuses: `SUCCEEDED`, `FAILED`, `PROCESSED`, `COMPLETED`.
+### `llamagen.comic.updatePanel(id, params)`
 
-## `llamagen.comic.createAndWait(params, options?)`
-
-One-shot create and poll.
+Regenerates one panel through `PATCH /comics/generations/{generationId}` with `action: "regeneratePanel"`.
 
 ```ts
-const done = await llamagen.comic.createAndWait({
-  prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A detective story in Tokyo'
+await llamagen.comic.updatePanel('gen_123', {
+  page: 0,
+  panel: 2,
+  panelPrompt: 'Make Leo look more hopeful and keep the same orange wizard robe.'
 });
 ```
 
-## `llamagen.comic.createBatch(paramsList, options?)`
+Accepted aliases include `panelIndex`, `panel_index`, `pageIndex`, `page_index`, `prompt`, `panel_prompt`, and `images_url`.
 
-Agent-friendly helper to submit many generation tasks with concurrency limits.
+### Usage, Uploads, and Polling
 
 ```ts
-const batch = await llamagen.comic.createBatch(
-  [
-    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, Panel 1: intro' },
-    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, Panel 2: action' },
-    { prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, Panel 3: ending' }
-  ],
-  { concurrency: 2, stopOnError: false }
-);
+const usage = await llamagen.comic.usage();
+const upload = await llamagen.comic.upload(file, 'reference.png');
+const done = await llamagen.comic.waitForCompletion('gen_123');
+const createdAndDone = await llamagen.comic.createAndWait({ prompt: 'A detective fox in Tokyo.' });
 ```
 
-Result item shape:
+Batch helpers:
+
+- `llamagen.comic.createBatch(paramsList, { concurrency, stopOnError })`
+- `llamagen.comic.waitForMany(ids, { concurrency, intervalMs, timeoutMs })`
+
+## Animation API
+
+### `llamagen.animation.create(params)`
+
+Creates a video artwork through `POST /artworks/generations`.
 
 ```ts
-type BatchCreateItemResult = {
-  input: CreateComicParams;
-  result?: ComicArtworkResponse;
-  error?: unknown;
-};
-```
-
-## `llamagen.comic.waitForMany(artworkIds, options?)`
-
-Waits for many IDs in parallel with bounded concurrency.
-
-```ts
-const ids = batch.flatMap((x) => (x.result?.id ? [x.result.id] : []));
-const done = await llamagen.comic.waitForMany(ids, {
-  concurrency: 3,
-  intervalMs: 4000,
-  timeoutMs: 240000
-});
-```
-
-## Backward-compatible aliases
-
-```ts
-await llamagen.comic.createComic({ prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, legacy path' });
-await llamagen.comic.getComic('cm123');
-```
-
-## HTTP (fetch) Example
-
-```ts
-const createdRes = await fetch('https://api.llamagen.ai/v1/comics/generations', {
-  method: 'POST',
-  headers: {
-    Authorization: `Bearer ${process.env.LLAMAGEN_API_KEY}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    prompt: 'american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A fox detective in Tokyo',
-    preset: 'neutral',
-    size: '1024x1024'
-  })
-});
-
-const created = await createdRes.json();
-
-const detailRes = await fetch(
-  `https://api.llamagen.ai/v1/comics/generations/${created.id}`,
-  {
-    headers: {
-      Authorization: `Bearer ${process.env.LLAMAGEN_API_KEY}`
-    }
+const created = await llamagen.animation.create({
+  prompt: 'A heroic fox detective walks through neon rain, cinematic camera move.',
+  videoOptions: {
+    duration: 5,
+    resolution: '720p',
+    aspect_ratio: '16:9',
+    image: 'https://example.com/first-frame.png',
+    last_frame_image: 'https://example.com/last-frame.png',
+    reference_images: ['https://example.com/character.png']
   }
-);
-
-const detail = await detailRes.json();
+});
 ```
 
-### HTTP Request / Response Notes
+Animation methods:
 
-`POST /comics/generations` request body:
+- `llamagen.animation.create(params)`
+- `llamagen.animation.get(id)`
+- `llamagen.animation.waitForCompletion(id, options?)`
+- `llamagen.animation.createAndWait(params, options?)`
 
-- `prompt: string` required
-- `preset?: string` optional (default `neutral`)
-- `size?: ComicSize` optional (default `1024x1024`)
-- `model?: string` optional
+Use this namespace for text-to-video, image-to-video, storyboard-to-video, and reference-driven animation workflows.
 
-Supported `size` values:
+## Webhooks
 
-- `1024x1024`
-- `512x768`
-- `512x1024`
-- `576x1024`
-- `768x1024`
-- `1024x768`
-- `768x512`
-- `1024x576`
-- `1024x512`
+```ts
+import { constructWebhookEvent } from 'comic';
 
-The SDK validates `size` before sending requests and throws `TypeError` for unsupported values.
-
-`POST /comics/generations` response (example):
-
-```json
-{
-  "id": "gen_123456789",
-  "status": "PENDING",
-  "createdAt": "2026-03-05T00:00:00Z"
-}
+const event = constructWebhookEvent(rawBody, headers, process.env.LLAMAGEN_WEBHOOK_SECRET!);
 ```
 
-`GET /comics/generations/:id` response (example):
+Supported event names include:
 
-```json
-{
-  "id": "gen_123456789",
-  "status": "SUCCEEDED",
-  "output": "https://cdn.llamagen.ai/comics/gen_123456789.webp",
-  "createdAt": "2026-03-05T00:00:00Z"
-}
-```
+- `comic.generation.created`
+- `comic.generation.updated`
+- `comic.generation.completed`
+- `comic.generation.failed`
 
-## cURL Example
+Headers verified by the SDK:
 
-Create generation:
+- `X-Llama-Webhook-Id`
+- `X-Llama-Webhook-Timestamp`
+- `X-Llama-Webhook-Signature`
+- `X-Llama-Webhook-Request-Id`
+
+## Direct HTTP
+
+Comic endpoints:
+
+- `POST /comics/generations`
+- `GET /comics/generations/{generationId}`
+- `PATCH /comics/generations/{generationId}`
+- `GET /comics/usage`
+- `POST /comics/upload`
+
+Animation endpoints:
+
+- `POST /artworks/generations`
+- `GET /artworks/generations/{id}`
 
 ```bash
 curl -X POST https://api.llamagen.ai/v1/comics/generations \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "prompt": "american comic illustration, bold, thick outlines,vibrant, high-contrast colors, A fox detective in Tokyo",
-    "preset": "neutral",
-    "size": "1024x1024"
+    "prompt": "A fox detective in Tokyo.",
+    "style": "manga",
+    "fixPanelNum": 4
   }'
 ```
 
-Get generation by ID:
+## MCP
 
-```bash
-curl -X GET https://api.llamagen.ai/v1/comics/generations/YOUR_GENERATION_ID \
-  -H "Authorization: Bearer YOUR_API_KEY"
+Remote MCP endpoint:
+
+```text
+https://llamagen.ai/api/mcp
 ```
+
+Available MCP tools:
+
+- `create_comic_generation`
+- `get_comic_generation_status`
+- `get_api_usage`
 
 ## Framework Integrations
 

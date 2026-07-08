@@ -1,10 +1,10 @@
 {
   "name": "comic",
-  "version": "2.10.0",
+  "version": "2.11.0",
   "description": "Official LlamaGen comic SDK for JavaScript and TypeScript",
   "license": "MIT",
-  "author": "llamagne.ai",
-  "homepage": "http://llamagen.ai/comic-api",
+  "author": "llamagen.ai",
+  "homepage": "https://llamagen.ai/comic-api",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LlamaGenAI/comic.git"
@@ -12,6 +12,11 @@
   "keywords": [
     "llamagen",
     "comic",
+    "comic api",
+    "animation api",
+    "ai comic api",
+    "text-to-video",
+    "image-to-video",
     "sdk",
     "ai"
   ],

@@ -16,3 +16,10 @@ export class LlamaGenTimeoutError extends Error {
     this.name = 'LlamaGenTimeoutError';
   }
 }
+
+export class LlamaGenWebhookSignatureError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'LlamaGenWebhookSignatureError';
+  }
+}
