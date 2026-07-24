@@ -316,10 +316,8 @@ describe('LlamaGenClient', () => {
     await expectation;
   });
 
-  test('retries once on 500 and then succeeds', async () => {
-    fetchMock
-      .mockResolvedValueOnce(createJsonResponse({ error: 'server error' }, 500))
-      .mockResolvedValueOnce(createJsonResponse({ id: 'cm_1', status: 'PROCESSED' }));
+  test('accepts maxRetries but does not retry a failed create request', async () => {
+    fetchMock.mockResolvedValueOnce(createJsonResponse({ error: 'server error' }, 500));
 
     const llamagen = new LlamaGenClient({
       apiKey: 'test-key',
@@ -328,9 +326,12 @@ describe('LlamaGenClient', () => {
       retryDelayMs: 0
     });
 
-    const result = await llamagen.comic.get('cm_1');
-    expect(result.id).toBe('cm_1');
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const err = await llamagen.comic
+      .create({ prompt: 'a cat' })
+      .catch((e) => e as LlamaGenAPIError);
+    expect(err).toBeInstanceOf(LlamaGenAPIError);
+    expect(err.status).toBe(500);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   test('does not retry on 400 responses', async () => {

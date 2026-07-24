@@ -4,7 +4,9 @@ export interface LlamaGenClientOptions {
   apiKey: string;
   baseURL?: string;
   timeoutMs?: number;
+  /** @deprecated Requests are no longer retried automatically. */
   maxRetries?: number;
+  /** @deprecated Requests are no longer retried automatically. */
   retryDelayMs?: number;
   fetch?: FetchLike;
 }

@@ -39,9 +39,7 @@ console.log(done.status, done.comics);
 const llamagen = new LlamaGenClient({
   apiKey: 'YOUR_API_KEY',
   baseURL: 'https://api.llamagen.ai/v1',
-  timeoutMs: 30000,
-  maxRetries: 2,
-  retryDelayMs: 500
+  timeoutMs: 30000
 });
 ```
 

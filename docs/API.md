@@ -11,9 +11,7 @@ import { LlamaGenClient } from 'comic';
 
 const llamagen = new LlamaGenClient({
   apiKey: process.env.LLAMAGEN_API_KEY!,
-  timeoutMs: 30000,
-  maxRetries: 2,
-  retryDelayMs: 500
+  timeoutMs: 30000
 });
 ```
 
